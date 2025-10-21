@@ -15,7 +15,7 @@ const schema = mongoose.Schema(
   }
 );
 
-class Categories extends mongoose.Model {}
+class Privileges extends mongoose.Model {}
 
-schema.loadClass(Categories);
-module.exports = mongoose.model("categories", schema);
+schema.loadClass(Privileges);
+module.exports = mongoose.model("privileges", schema);

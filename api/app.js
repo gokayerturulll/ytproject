@@ -1,7 +1,6 @@
-
-if(process.env.NODE_ENV != "production"){
-  require("dotenv").config()}
-
+if (process.env.NODE_ENV != "production") {
+  require("dotenv").config();
+}
 
 var createError = require("http-errors");
 var express = require("express");
@@ -11,6 +10,7 @@ var logger = require("morgan");
 
 var indexRouter = require("./routes/index");
 var usersRouter = require("./routes/users");
+var auditRouter = require("./routes/auditLogs");
 
 var app = express();
 
@@ -28,6 +28,7 @@ app.use(express.static(path.join(__dirname, "public")));
 
 app.use("/", indexRouter);
 app.use("/users", usersRouter);
+app.use("./auditlogs", auditRouter);
 
 // catch 404 and forward to error handler
 app.use(function (req, res, next) {
