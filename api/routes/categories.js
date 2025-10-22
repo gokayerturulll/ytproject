@@ -75,6 +75,7 @@ router.post("/delete", async (req, res) => {
       );
 
     await Categories.removeOne({ _id: body._id });
+
     res.json(Response.successResponse({ success: true }));
   } catch (err) {
     let errorResponse = Response.errorResponse(err);

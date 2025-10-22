@@ -5,6 +5,7 @@ const RolePrivileges = require("../db/models/RolePrivileges");
 const Response = require("../lib/Response");
 const CustomError = require("../lib/Error");
 const Enum = require("../config/Enum");
+const role_privileges = require("../config/role_privileges");
 
 router.get("/", async (req, res) => {
   try {
@@ -19,18 +20,39 @@ router.get("/", async (req, res) => {
 router.post("/add", async (req, res) => {
   let body = req.body;
   try {
-    if (!body.role_name)
+    if (!body.role_name) {
       throw new CustomError(
         Enum.HTTP_CODES.BAD_REQUEST,
         "Validation Error",
         "role_name field must be filled "
       );
+    }
+
+    if (
+      !body.permissions ||
+      !Array.isArray(body.permissions) ||
+      body.permissions.length == 0
+    ) {
+      throw new CustomError(
+        Enum.HTTP_CODES.BAD_REQUEST,
+        "Validation Error",
+        "role_name field must be filled "
+      );
+    }
     let role = new Roles({
       role_name: body.role_name,
       is_active: true,
       created_by: req.user?.id,
     });
     await role.save();
+    for (let i = 0; i < body.permissions.length; i++) {
+      let priv = new RolePrivileges({
+        role_id: role._id,
+        permissions: body.permissions[i],
+        created_by: req.user?.id,
+      });
+      await priv.save();
+    }
     res.json(Response.successResponse({ success: true }));
   } catch (err) {
     let errorResponse = Response.errorResponse(err);
@@ -75,6 +97,10 @@ router.post("/delete", async (req, res) => {
     let errorResponse = Response.errorResponse(err);
     res.status(errorResponse.code).json(errorResponse);
   }
+});
+
+router.get("/role_privileges", async (res, req) => {
+  res.json(role_privileges);
 });
 
 module.exports = router;
