@@ -8,7 +8,7 @@ const Enum = require("../config/Enum");
 /* GET categories  listing. */
 router.get("/", async (req, res, next) => {
   try {
-    let categories = await Categories.find({});
+    let categories = await Categories.find({}); //{} filtreleme kriteri yok demek
     res.json(Response.successResponse(categories));
   } catch (err) {
     let errorResponse = Response.errorResponse(err);
@@ -55,7 +55,7 @@ router.post("/update", async (req, res) => {
     if (body.name) updates.name = body.name;
     if (typeof body.is_active === "boolean") updates.is_active = body.is_active;
 
-    await Categories.updateOne({ _id: body._id }, updates);
+    await Categories.updateOne({ _id: body._id }, updates); //updatesde id si buna eşit olanı güncelle
     res.json(Response.successResponse({ success: true }));
   } catch (err) {
     let errorResponse = Response.errorResponse(err);
