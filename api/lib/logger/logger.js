@@ -3,7 +3,7 @@ const { LOG_LEVEL } = require("../../config");
 const formats = format.combine(
   format.timestamp({ format: "YYYY-MM-DD HH:mm:ss.SSS" }),
   format.simple(),
-  format.splat(), // %d %s kullanmamızı sağlar loglarke
+  format.splat(), // %d %s kullanmamızı sağlar loglarken
   format.printf(
     (info) =>
       `${info.timestamp} ${info.level.toUpperCase()}:  [email:${
