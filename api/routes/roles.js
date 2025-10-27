@@ -3,9 +3,11 @@ var router = express.Router();
 const Roles = require("../db/models/Roles");
 const RolePrivileges = require("../db/models/RolePrivileges");
 const Response = require("../lib/Response");
-const CustomError = require("../lib/Error");
+const CustomError = require("../lib/Error").default;
 const Enum = require("../config/Enum");
 const role_privileges = require("../config/role_privileges");
+
+/********* GET role list. ********************/
 
 router.get("/", async (req, res) => {
   try {
@@ -16,6 +18,8 @@ router.get("/", async (req, res) => {
     res.status(errorResponse.code).json(errorResponse);
   }
 });
+
+/********* ADD ROLE. ********************/
 
 router.post("/add", async (req, res) => {
   let body = req.body;
@@ -62,6 +66,8 @@ router.post("/add", async (req, res) => {
     res.status(errorResponse.code).json(errorResponse);
   }
 });
+
+/********* Update ROLE. ********************/
 
 router.post("/update", async (req, res) => {
   let body = req.body;
@@ -116,6 +122,8 @@ router.post("/update", async (req, res) => {
     res.status(errorResponse.code).json(errorResponse);
   }
 });
+
+/********* DELETE ROLE. ********************/
 
 router.post("/delete", async (req, res) => {
   let body = req.body;

@@ -4,6 +4,8 @@ const Categories = require("../db/models/Categories");
 const Response = require("../lib/Response");
 const CustomError = require("../lib/Error");
 const Enum = require("../config/Enum");
+const AuditLogs = require("../lib/AuditLogs");
+const logger = require("../lib/logger/LoggerClass");
 
 /* GET categories  listing. */
 router.get("/", async (req, res, next) => {
@@ -17,7 +19,7 @@ router.get("/", async (req, res, next) => {
   }
 });
 
-router.post("add", async (req, res) => {
+router.post("/add", async (req, res) => {
   let body = req.body;
   try {
     if (!body.name)
@@ -34,8 +36,13 @@ router.post("add", async (req, res) => {
     });
 
     await category.save();
+
+    AuditLogs.info(req.user?.email, "Categories", "Add", category);
+    logger.info(req.user?.email, "Categories", "Add", category);
+
     res.json(Response.successResponse({ success: true }));
   } catch (err) {
+    logger.error(req.user?.email, "Categories", "Add", err);
     let errorResponse = Response.errorResponse(err);
     res.status(errorResponse.code).json(errorResponse);
   }
@@ -55,7 +62,12 @@ router.post("/update", async (req, res) => {
     if (body.name) updates.name = body.name;
     if (typeof body.is_active === "boolean") updates.is_active = body.is_active;
 
-    await Categories.updateOne({ _id: body._id }, updates); //updatesde id si buna eşit olanı güncelle
+    await Categories.updateOne({ _id: body._idu }, updates); //updatesde id si buna eşit olanı güncelle
+    AuditLogs.info(req.user?.email, "Categories", "Update", {
+      _id: body._id,
+      ...updates, //??
+    });
+
     res.json(Response.successResponse({ success: true }));
   } catch (err) {
     let errorResponse = Response.errorResponse(err);
@@ -75,6 +87,7 @@ router.post("/delete", async (req, res) => {
       );
 
     await Categories.deleteOne({ _id: body._id });
+    AuditLogs.info(req.user?.email, "Categories", "Delete", { _id: body._id }); //??
 
     res.json(Response.successResponse({ success: true }));
   } catch (err) {

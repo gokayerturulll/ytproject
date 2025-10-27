@@ -3,7 +3,7 @@ var router = express.Router();
 const bcrypt = require("bcryptjs");
 const Users = require("../db/models/User");
 const Response = require("../lib/Response");
-const CustomError = require("../lib/Error");
+const CustomError = require("../lib/Error").default;
 const Enum = require("../config/Enum");
 const User = require("../db/models/User");
 const UserRoles = require("../db/models/UserRoles");
@@ -19,6 +19,8 @@ router.get("/", async (req, res) => {
     res.status(errorResponse.code).json(errorResponse);
   }
 });
+
+/********* ADD user. ********************/
 
 router.post("/add", async (req, res) => {
   let body = req.body;
@@ -85,6 +87,8 @@ router.post("/add", async (req, res) => {
   }
 });
 
+/********* Update user. ********************/
+
 router.post("/update", async (req, res) => {
   let body = req.body;
   let updates = {};
@@ -141,6 +145,8 @@ router.post("/update", async (req, res) => {
   }
 });
 
+/********* DElete user. ********************/
+
 router.post("/delete", async (req, res) => {
   let body = req.body;
   try {
@@ -161,6 +167,8 @@ router.post("/delete", async (req, res) => {
     res.status(errorResponse.code).json(errorResponse);
   }
 });
+
+/********* USER REGISTER. ********************/
 
 router.post("/register", async (req, res) => {
   let body = req.body;

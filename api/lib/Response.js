@@ -1,5 +1,5 @@
 const Enum = require("../config/Enum");
-const CustomError = require("./Error");
+const CustomError = require("./Error").default;
 
 class Response {
   constructor() {}
@@ -21,16 +21,14 @@ class Response {
           description: error.description,
         },
       };
-    }
-
-    else if(error.message.includes("E11000")){
+    } else if (error.message.includes("E11000")) {
       return {
-      code: Enum.HTTP_CODES.CONFLICT,
-      error: {
-        message: "Already exists",
-        description: error.message,
-      },
-    };
+        code: Enum.HTTP_CODES.CONFLICT,
+        error: {
+          message: "Already exists",
+          description: error.message,
+        },
+      };
     }
 
     return {
