@@ -8,7 +8,7 @@ const AuditLogs = require("../lib/AuditLogs");
 const logger = require("../lib/logger/LoggerClass");
 
 /* GET categories  listing. */
-router.get("/", async (req, res, next) => {
+router.get("/", async (req, res) => {
   try {
     let categories = await Categories.find({}); //{} filtreleme kriteri yok demek
     res.json(Response.successResponse(categories));
