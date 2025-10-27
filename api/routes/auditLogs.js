@@ -3,6 +3,11 @@ const moment = require("moment"); //tarih işlemlerini kolaylaştırır
 const router = express.Router();
 const AuditLogs = require("../db/models/AuditLogs");
 const Response = require("../lib/Response");
+const auth = require("../lib/auth")();
+
+router.all("*", auth.authenticate(), (req, res, next) => {
+  next();
+});
 
 router.post("/", async (req, res) => {
   //req bodyden veri almak daha kolay olduğu için get yerine post

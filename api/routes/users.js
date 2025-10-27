@@ -11,6 +11,114 @@ const Roles = require("../db/models/Roles");
 const config = require("../config");
 const jwt = require("jwt-simple");
 
+const auth = require("../lib/auth")();
+
+router.all("*", auth.authenticate(), (req, res, next) => {
+  next();
+});
+
+/********* USER REGISTER. ********************/
+
+router.post("/register", async (req, res) => {
+  let body = req.body;
+
+  try {
+    let user = await Users.findOne({});
+    if (user) {
+      return res.sendStatus(Enum.HTTP_CODES.NOT_FOUND);
+    }
+    if (!body.email)
+      throw new CustomError(
+        Enum.HTTP_CODES.BAD_REQUEST,
+        "Validation error",
+        "Email must be filled"
+      );
+    if (!body.password)
+      throw new CustomError(
+        Enum.HTTP_CODES.BAD_REQUEST,
+        "Validation error",
+        "Password must be filled"
+      );
+
+    if (body.password.length < Enum.PASS_LENGTH) {
+      throw new CustomError(
+        Enum.HTTP_CODES.BAD_REQUEST,
+        "Validation Error",
+        "must be greater than" + Enum.PASS_LENGTH
+      );
+    }
+
+    let password = bcrypt.hashSync(body.password, bcrypt.genSaltSync(8), null);
+
+    let createdUser = await User.create({
+      email: body.email,
+      password,
+      is_active: true,
+      first_name: body.first_name,
+      last_name: body.last_name,
+      phone_number: body.phone_number,
+    });
+
+    let role = await Roles.create({
+      role_name: Enum.SUPER_ADMIN,
+      is_active: true,
+      created_by: createdUser._id,
+    });
+
+    await UserRoles.create({
+      role_id: role._id,
+      user_id: createdUser._id,
+    });
+
+    res
+      .status(Enum.HTTP_CODES.CREATED)
+      .json(
+        Response.successResponse({ success: true }, Enum.HTTP_CODES.CREATED)
+      );
+  } catch (err) {
+    let errorResponse = Response.errorResponse(err);
+    res.status(errorResponse.code).json(errorResponse);
+  }
+});
+
+/********* USER Auth. ********************/
+
+router.post("/auth", async (req, res) => {
+  try {
+    let { email, password } = req.body;
+    Users.validateFieldsBeforeAuth(email, password);
+
+    let user = await Users.findOne({ email });
+    if (!user)
+      throw new CustomError(
+        Enum.HTTP_CODES.UNAUTHORIZED,
+        "ValidationError",
+        "Email or password wrong "
+      );
+
+    if (!user.validPassword(password))
+      throw new CustomError(
+        Enum.HTTP_CODES.UNAUTHORIZED,
+        "Validation Error",
+        "Email or password wrong"
+      );
+
+    let payload = {
+      id: user._id,
+      exp: parseInt(Date.now() / 1000) * config.JWT.EXPIRE_TIME,
+    };
+    let token = jwt.encode(payload, config.JWT.SECRET);
+    let userData = {
+      _id: user._id,
+      first_name: user.first_name,
+      last_name: user.last_name,
+    };
+    res.json(Response.successResponse({ token, user: userData }));
+  } catch (err) {
+    let errorResponse = Response.errorResponse(err);
+    res.status(errorResponse.code).json(errorResponse);
+  }
+});
 /* GET users listing. */
 router.get("/", async (req, res) => {
   try {
@@ -164,109 +272,6 @@ router.post("/delete", async (req, res) => {
     await UserRoles.deleteMany({ user_id: body._id });
 
     res.json(Response.successResponse({ success: true }));
-  } catch (err) {
-    let errorResponse = Response.errorResponse(err);
-    res.status(errorResponse.code).json(errorResponse);
-  }
-});
-
-/********* USER REGISTER. ********************/
-
-router.post("/register", async (req, res) => {
-  let body = req.body;
-
-  try {
-    let user = await Users.findOne({});
-    if (user) {
-      return res.sendStatus(Enum.HTTP_CODES.NOT_FOUND);
-    }
-    if (!body.email)
-      throw new CustomError(
-        Enum.HTTP_CODES.BAD_REQUEST,
-        "Validation error",
-        "Email must be filled"
-      );
-    if (!body.password)
-      throw new CustomError(
-        Enum.HTTP_CODES.BAD_REQUEST,
-        "Validation error",
-        "Password must be filled"
-      );
-
-    if (body.password.length < Enum.PASS_LENGTH) {
-      throw new CustomError(
-        Enum.HTTP_CODES.BAD_REQUEST,
-        "Validation Error",
-        "must be greater than" + Enum.PASS_LENGTH
-      );
-    }
-
-    let password = bcrypt.hashSync(body.password, bcrypt.genSaltSync(8), null);
-
-    let createdUser = await User.create({
-      email: body.email,
-      password,
-      is_active: true,
-      first_name: body.first_name,
-      last_name: body.last_name,
-      phone_number: body.phone_number,
-    });
-
-    let role = await Roles.create({
-      role_name: Enum.SUPER_ADMIN,
-      is_active: true,
-      created_by: createdUser._id,
-    });
-
-    await UserRoles.create({
-      role_id: role._id,
-      user_id: createdUser._id,
-    });
-
-    res
-      .status(Enum.HTTP_CODES.CREATED)
-      .json(
-        Response.successResponse({ success: true }, Enum.HTTP_CODES.CREATED)
-      );
-  } catch (err) {
-    let errorResponse = Response.errorResponse(err);
-    res.status(errorResponse.code).json(errorResponse);
-  }
-});
-
-/********* USER Auth. ********************/
-
-router.post("/auth", async (req, res) => {
-  try {
-    let { email, password } = req.body;
-    Users.validateFieldsBeforeAuth(email, password);
-
-    let user = await Users.findOne({ email });
-    if (!user)
-      throw new CustomError(
-        Enum.HTTP_CODES.UNAUTHORIZED,
-        "ValidationError",
-        "Email or password wrong "
-      );
-
-    if (!user.validPassword(password))
-      throw new CustomError(
-        Enum.HTTP_CODES.UNAUTHORIZED,
-        "Validation Error",
-        "Email or password wrong"
-      );
-
-    let payload = {
-      id: user._id,
-      exp: parseInt(Date.now() / 1000) * config.JWT.EXPIRE_TIME,
-    };
-    let token = jwt.encode(payload, config.JWT.SECRET);
-    let userData = {
-      _id: user._id,
-      first_name: user.first_name,
-      last_name: user.last_name,
-    };
-    res.json(Response.successResponse({ token, user: userData }));
   } catch (err) {
     let errorResponse = Response.errorResponse(err);
     res.status(errorResponse.code).json(errorResponse);

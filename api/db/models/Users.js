@@ -22,7 +22,7 @@ const schema = mongoose.Schema(
 );
 
 class Users extends mongoose.Model {
-  static validPassword(password) {
+  validPassword(password) {
     return bcrypt.compareSync(password, this.password);
   }
 
