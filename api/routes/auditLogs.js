@@ -13,10 +13,10 @@ router.post("/", async (req, res) => {
     let skip = body.skip;
     let limit = body.limit;
 
-    if (typeof body.skip !== "numeric") {
+    if (typeof body.skip !== "number") {
       skip = 0;
     }
-    if (typeof body.limit !== "numeric" || body.limit > 500) body.limit = 500;
+    if (typeof body.limit !== "number" || body.limit > 500) body.limit = 500;
     if (body.begin_date && body.end_date) {
       query.created_at = {
         $gte: moment(body.begin_date), //greater  than equal

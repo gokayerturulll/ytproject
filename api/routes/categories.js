@@ -62,7 +62,7 @@ router.post("/update", async (req, res) => {
     if (body.name) updates.name = body.name;
     if (typeof body.is_active === "boolean") updates.is_active = body.is_active;
 
-    await Categories.updateOne({ _id: body._idu }, updates); //updatesde id si buna eşit olanı güncelle
+    await Categories.updateOne({ _id: body._id }, updates); //updatesde id si buna eşit olanı güncelle
     AuditLogs.info(req.user?.email, "Categories", "Update", {
       _id: body._id,
       ...updates, //??

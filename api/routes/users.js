@@ -46,7 +46,7 @@ router.post("/add", async (req, res) => {
         "must be greater than" + Enum.PASS_LENGTH
       );
     }
-    if (!body.roles || Array.isArray(body.roles) || body.roles.length == 0) {
+    if (!body.roles || !Array.isArray(body.roles) || body.roles.length == 0) {
       throw new CustomError(
         Enum.HTTP_CODES.BAD_REQUEST,
         "ValidationError",
