@@ -9,7 +9,7 @@ router.all("*", auth.authenticate(), (req, res, next) => {
   next();
 });
 
-router.post("/", async (req, res) => {
+router.post("/", auth.checkRoles("auditlogs_view"), async (req, res) => {
   //req bodyden veri almak daha kolay olduğu için get yerine post
 
   try {

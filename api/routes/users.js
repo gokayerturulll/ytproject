@@ -13,10 +13,6 @@ const jwt = require("jwt-simple");
 
 const auth = require("../lib/auth")();
 
-router.all("*", auth.authenticate(), (req, res, next) => {
-  next();
-});
-
 /********* USER REGISTER. ********************/
 
 router.post("/register", async (req, res) => {
@@ -119,8 +115,12 @@ router.post("/auth", async (req, res) => {
     res.status(errorResponse.code).json(errorResponse);
   }
 });
+
+router.all("*", auth.authenticate(), (req, res, next) => {
+  next();
+});
 /* GET users listing. */
-router.get("/", async (req, res) => {
+router.get("/", auth.checkRoles("user_view"), async (req, res) => {
   try {
     let users = await Users.find({});
     res.json(Response.successResponse(users));
@@ -132,7 +132,7 @@ router.get("/", async (req, res) => {
 
 /********* ADD user. ********************/
 
-router.post("/add", async (req, res) => {
+router.post("/add", auth.checkRoles("user_add"), async (req, res) => {
   let body = req.body;
 
   try {
@@ -199,7 +199,7 @@ router.post("/add", async (req, res) => {
 
 /********* Update user. ********************/
 
-router.post("/update", async (req, res) => {
+router.post("/update", auth.checkRoles("user_update"), async (req, res) => {
   let body = req.body;
   let updates = {};
 
@@ -257,7 +257,7 @@ router.post("/update", async (req, res) => {
 
 /********* DElete user. ********************/
 
-router.post("/delete", async (req, res) => {
+router.post("/delete", auth.checkRoles("user_delete"), async (req, res) => {
   let body = req.body;
   try {
     if (!body._id)

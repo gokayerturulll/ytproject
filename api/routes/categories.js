@@ -14,7 +14,7 @@ router.all("*", auth.authenticate(), (req, res, next) => {
 });
 
 /* GET categories  listing. */
-router.get("/", async (req, res) => {
+router.get("/", auth.checkRoles("category_view"), async (req, res) => {
   try {
     let categories = await Categories.find({}); //{} filtreleme kriteri yok demek
     res.json(Response.successResponse(categories));
@@ -25,7 +25,7 @@ router.get("/", async (req, res) => {
   }
 });
 
-router.post("/add", async (req, res) => {
+router.post("/add", auth.checkRoles("category_add"), async (req, res) => {
   let body = req.body;
   try {
     if (!body.name)
@@ -54,7 +54,7 @@ router.post("/add", async (req, res) => {
   }
 });
 
-router.post("/update", async (req, res) => {
+router.post("/update", auth.checkRoles("category_update"), async (req, res) => {
   let body = req.body;
   try {
     if (!body._id)
@@ -81,7 +81,7 @@ router.post("/update", async (req, res) => {
   }
 });
 
-router.post("/delete", async (req, res) => {
+router.post("/delete", auth.checkRoles("category_delete"), async (req, res) => {
   let body = req.body;
 
   try {
