@@ -101,7 +101,7 @@ router.post("/auth", async (req, res) => {
 
     let payload = {
       id: user._id,
-      exp: parseInt(Date.now() / 1000) * config.JWT.EXPIRE_TIME,
+      exp: parseInt(Date.now() / 1000) + config.JWT.EXPIRE_TIME,
     };
     let token = jwt.encode(payload, config.JWT.SECRET);
     let userData = {
@@ -228,7 +228,7 @@ router.post("/update", auth.checkRoles("user_update"), async (req, res) => {
         (x) => !body.roles.includes(x.role_id.toString())
       );
       let newRoles = body.roles.filter(
-        (x) => !userRoles.map((r) => r.role_id).includes(x)
+        (x) => !userRoles.map((r) => r.role_id.toString()).includes(x)
       );
 
       if (removedRoles.length > 0) {
