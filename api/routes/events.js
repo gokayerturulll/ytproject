@@ -13,11 +13,15 @@ router.get("/", (req, res) => {
   });
 
   const listener = (data) => {
-    res.write("data: " + JSON.stringify(data) + "\n\n");
+    res.write("data: " + JSON.stringify(data) + "\n");
   };
   emitter.getEmitter("notifications").on("messages", listener);
+  //messages eventi gerçekleşirse listener fonksiyonu çalışır
 
   req.on("close", () => {
     emitter.getEmitter("notifications").off("messages", listener);
+    //listenerı messages eventini dinleyenler arasından çıkarır
   });
 });
+
+module.exports = router;

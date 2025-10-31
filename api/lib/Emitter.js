@@ -1,4 +1,4 @@
-const { EventEmitter } = require("event");
+const { EventEmitter } = require("events");
 var instance = null;
 class Emitter {
   constructor() {

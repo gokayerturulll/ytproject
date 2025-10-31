@@ -7,6 +7,8 @@ const Enum = require("../config/Enum");
 const AuditLogs = require("../lib/AuditLogs");
 const logger = require("../lib/logger/LoggerClass");
 const emitter = require("../lib/Emitter");
+const excelExport = new (require("../lib/Export"))();
+const fs = require("fs");
 
 const auth = require("../lib/auth")();
 
@@ -48,7 +50,7 @@ router.post("/add", auth.checkRoles("category_add"), async (req, res) => {
     logger.info(req.user?.email, "Categories", "Add", category);
     emitter
       .getEmitter("notifications")
-      .emit("messages", { message: category.name + "is added" });
+      .emit("messages", { message: category.name + "is added" }); //messagese bu datayı dönüyor
 
     res.json(Response.successResponse({ success: true }));
   } catch (err) {
@@ -100,6 +102,25 @@ router.post("/delete", auth.checkRoles("category_delete"), async (req, res) => {
     AuditLogs.info(req.user?.email, "Categories", "Delete", { _id: body._id }); //??
 
     res.json(Response.successResponse({ success: true }));
+  } catch (err) {
+    let errorResponse = Response.errorResponse(err);
+    res.status(errorResponse.code).json(errorResponse);
+  }
+});
+
+router.post("/export", auth.checkRoles("category_export"), async (req, res) => {
+  try {
+    let categories = await Categories.find({});
+    let excel = excelExport.toExcel(
+      ["NAME", "IS ACTIVE", "USER ID", "CREATED AT", "UPDATED AT"],
+      ["name", "is_active", "created_by", "created_at", "updated_at"],
+      categories
+    );
+
+    let filePath = __dirname + "/../tmp/categories_excel_" + Date.now().xlsx;
+    fs.writeFileSync(filePath, excel, "UTF-8");
+
+    res.download(filePath);
   } catch (err) {
     let errorResponse = Response.errorResponse(err);
     res.status(errorResponse.code).json(errorResponse);
