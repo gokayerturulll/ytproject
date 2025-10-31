@@ -96,10 +96,10 @@ router.post("/update", auth.checkRoles("role_update"), async (req, res) => {
     ) {
       let permissions = await RolePrivileges.find({ role_id: body._id });
       let removedPermissions = permissions.filter(
-        (p) => !body.permissions.includes(p.permissions)
+        (p) => !body.permissions.includes(p.permission)
       );
       let newPermissions = body.permissions.filter(
-        (x) => !permissions.map((p) => p.permissions).includes(x)
+        (x) => !permissions.map((p) => p.permission).includes(x)
       );
 
       if (removedPermissions.length > 0) {

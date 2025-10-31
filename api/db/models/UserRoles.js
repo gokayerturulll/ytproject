@@ -4,7 +4,7 @@ const schema = mongoose.Schema(
   {
     role_id: { type: mongoose.SchemaTypes.ObjectId, required: true },
     permissions: { type: String, default: true },
-    created_by: { type: mongoose.SchemaTypes.ObjectId, required: true },
+    created_by: { type: mongoose.SchemaTypes.ObjectId },
   },
   {
     versionKey: false, //mongooseda kayıt oluşturunca versionKey oluşur oluşmaması için
