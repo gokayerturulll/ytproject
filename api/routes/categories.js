@@ -117,7 +117,8 @@ router.post("/export", auth.checkRoles("category_export"), async (req, res) => {
       categories
     );
 
-    let filePath = __dirname + "/../tmp/categories_excel_" + Date.now().xlsx;
+    let filePath =
+      __dirname + "/../tmp/categories_excel_" + Date.now() + ".xlsx";
     fs.writeFileSync(filePath, excel, "UTF-8");
 
     res.download(filePath);

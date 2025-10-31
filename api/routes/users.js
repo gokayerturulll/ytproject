@@ -122,7 +122,13 @@ router.all("*", auth.authenticate(), (req, res, next) => {
 /* GET users listing. */
 router.get("/", auth.checkRoles("user_view"), async (req, res) => {
   try {
-    let users = await Users.find({});
+    let users = await Users.find({}, { password: 0 }).lean(); //password hariç hepsini döner password:1 olursa sadece password
+    for (let i = 0; i < users.length; i++) {
+      let roles = await UserRoles.find({ user_id: users[i]._id }).populate(
+        "role_id" //populate role_id yerine UserRolesde role_id ref edilen yeri çek demek
+      );
+      users[i].roles = roles;
+    }
     res.json(Response.successResponse(users));
   } catch (err) {
     let errorResponse = Response.errorResponse(err);
